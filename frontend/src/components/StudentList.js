@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 function StudentList() {
   const [students, setStudents] = useState([]);
@@ -8,7 +8,7 @@ function StudentList() {
   const navigate = useNavigate();
 
   const calculateAge = (dob) => {
-    if (!dob) return '';
+    if (!dob) return "";
     const birthDate = new Date(dob);
     const today = new Date();
     let age = today.getFullYear() - birthDate.getFullYear();
@@ -21,7 +21,9 @@ function StudentList() {
 
   const fetchStudents = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/students');
+      const response = await axios.get(
+        "https://management-q91z.onrender.com/students"
+      );
       const sortedStudents = response.data.sort((a, b) => {
         if (a.studentId < b.studentId) return -1;
         if (a.studentId > b.studentId) return 1;
@@ -30,7 +32,7 @@ function StudentList() {
       setStudents(sortedStudents);
       setLoading(false);
     } catch (error) {
-      alert('Error fetching students');
+      alert("Error fetching students");
       setLoading(false);
     }
   };
@@ -40,13 +42,13 @@ function StudentList() {
   }, []);
 
   const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this student?')) {
+    if (window.confirm("Are you sure you want to delete this student?")) {
       try {
         await axios.delete(`http://localhost:5000/students/${id}`);
-        alert('Student deleted successfully');
+        alert("Student deleted successfully");
         fetchStudents();
       } catch (error) {
-        alert('Error deleting student');
+        alert("Error deleting student");
       }
     }
   };
@@ -74,13 +76,21 @@ function StudentList() {
             {students.map((student) => (
               <tr key={student._id}>
                 <td>{student.studentId}</td>
-                <td>{student.firstName} {student.lastName}</td>
+                <td>
+                  {student.firstName} {student.lastName}
+                </td>
                 <td>{calculateAge(student.dob)}</td>
                 <td>{student.email}</td>
                 <td>{student.department}</td>
                 <td>
-                  <button onClick={() => navigate(`/edit-student/${student._id}`)}>Edit</button>{' '}
-                  <button onClick={() => handleDelete(student._id)}>Delete</button>
+                  <button
+                    onClick={() => navigate(`/edit-student/${student._id}`)}
+                  >
+                    Edit
+                  </button>{" "}
+                  <button onClick={() => handleDelete(student._id)}>
+                    Delete
+                  </button>
                 </td>
               </tr>
             ))}
