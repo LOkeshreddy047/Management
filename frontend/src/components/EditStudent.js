@@ -1,31 +1,33 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import axios from "axios";
 
 function EditStudent() {
   const { id } = useParams();
   const [student, setStudent] = useState({
-    rollNumber: '',
-    name: '',
-    age: '',
-    email: '',
-    course: ''
+    rollNumber: "",
+    name: "",
+    age: "",
+    email: "",
+    course: "",
   });
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchStudent = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/students/${id}`);
+        const response = await axios.get(
+          `https://management-q91z.onrender.com/students/${id}`
+        );
         setStudent({
           rollNumber: response.data.rollNumber,
           name: response.data.name,
           age: response.data.age,
           email: response.data.email,
-          course: response.data.course
+          course: response.data.course,
         });
       } catch (error) {
-        alert('Error fetching student data');
+        alert("Error fetching student data");
       }
     };
     fetchStudent();
@@ -37,16 +39,22 @@ function EditStudent() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!student.rollNumber || !student.name || !student.age || !student.email || !student.course) {
-      alert('Please fill in all fields');
+    if (
+      !student.rollNumber ||
+      !student.name ||
+      !student.age ||
+      !student.email ||
+      !student.course
+    ) {
+      alert("Please fill in all fields");
       return;
     }
     if (!/^\d{12}$/.test(student.rollNumber)) {
-      alert('Roll number must be exactly 12 digits');
+      alert("Roll number must be exactly 12 digits");
       return;
     }
-    if (!student.email.endsWith('@cbit.org.in')) {
-      alert('Email must be a @cbit.org.in address');
+    if (!student.email.endsWith("@cbit.org.in")) {
+      alert("Email must be a @cbit.org.in address");
       return;
     }
     try {
@@ -55,12 +63,12 @@ function EditStudent() {
         name: student.name,
         age: Number(student.age),
         email: student.email,
-        course: student.course
+        course: student.course,
       });
-      alert('Student updated successfully');
-      navigate('/students');
+      alert("Student updated successfully");
+      navigate("/students");
     } catch (error) {
-      alert('Error updating student');
+      alert("Error updating student");
     }
   };
 
@@ -70,7 +78,11 @@ function EditStudent() {
       <form onSubmit={handleSubmit}>
         <div>
           <label>Roll Number: </label>
-          <input name="rollNumber" value={student.rollNumber} onChange={handleChange} />
+          <input
+            name="rollNumber"
+            value={student.rollNumber}
+            onChange={handleChange}
+          />
         </div>
         <div>
           <label>Name: </label>
@@ -78,11 +90,21 @@ function EditStudent() {
         </div>
         <div>
           <label>Age: </label>
-          <input name="age" type="number" value={student.age} onChange={handleChange} />
+          <input
+            name="age"
+            type="number"
+            value={student.age}
+            onChange={handleChange}
+          />
         </div>
         <div>
           <label>Email: </label>
-          <input name="email" type="email" value={student.email} onChange={handleChange} />
+          <input
+            name="email"
+            type="email"
+            value={student.email}
+            onChange={handleChange}
+          />
         </div>
         <div>
           <label>Course: </label>
