@@ -44,7 +44,7 @@ function StudentList() {
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this student?")) {
       try {
-        await axios.delete(`http://localhost:5000/students/${id}`);
+        await axios.delete(`https://management-q91z.onrender.com/students/${id}`);
         alert("Student deleted successfully");
         fetchStudents();
       } catch (error) {
@@ -64,11 +64,11 @@ function StudentList() {
         <table>
           <thead>
             <tr>
-              <th>Roll Number</th>
+              <th>Student ID</th>
               <th>Name</th>
               <th>Age</th>
               <th>Email</th>
-              <th>Course</th>
+              <th>Department</th>
               <th>Actions</th>
             </tr>
           </thead>
