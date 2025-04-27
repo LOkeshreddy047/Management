@@ -5,12 +5,16 @@ import axios from "axios";
 function EditStudent() {
   const { id } = useParams();
   const [student, setStudent] = useState({
-    rollNumber: "",
-    name: "",
-    age: "",
+    studentId: "",
+    firstName: "",
+    lastName: "",
     email: "",
-    course: "",
+    dob: "",
+    department: "",
+    enrollmentYear: "",
+    isActive: true,
   });
+  const [errors, setErrors] = useState({});
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -20,11 +24,14 @@ function EditStudent() {
           `https://management-q91z.onrender.com/students/${id}`
         );
         setStudent({
-          rollNumber: response.data.rollNumber,
-          name: response.data.name,
-          age: response.data.age,
-          email: response.data.email,
-          course: response.data.course,
+          studentId: response.data.studentId || "",
+          firstName: response.data.firstName || "",
+          lastName: response.data.lastName || "",
+          email: response.data.email || "",
+          dob: response.data.dob || "",
+          department: response.data.department || "",
+          enrollmentYear: response.data.enrollmentYear || "",
+          isActive: response.data.isActive !== undefined ? response.data.isActive : true,
         });
       } catch (error) {
         alert("Error fetching student data");
@@ -33,37 +40,65 @@ function EditStudent() {
     fetchStudent();
   }, [id]);
 
+  const validate = () => {
+    const newErrors = {};
+
+    if (!student.studentId) newErrors.studentId = "Student ID is required";
+    else if (!/^[a-zA-Z0-9]+$/.test(student.studentId))
+      newErrors.studentId = "Student ID must be alphanumeric";
+
+    if (!student.firstName) newErrors.firstName = "First name is required";
+    else if (student.firstName.length < 2)
+      newErrors.firstName = "First name must be at least 2 characters";
+
+    if (!student.lastName) newErrors.lastName = "Last name is required";
+    else if (student.lastName.length < 2)
+      newErrors.lastName = "Last name must be at least 2 characters";
+
+    if (!student.email) newErrors.email = "Email is required";
+    else if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(student.email))
+      newErrors.email = "Email must be a valid format";
+
+    if (!student.dob) newErrors.dob = "Date of birth is required";
+
+    if (!student.department) newErrors.department = "Department is required";
+
+    if (!student.enrollmentYear)
+      newErrors.enrollmentYear = "Enrollment year is required";
+    else if (
+      isNaN(student.enrollmentYear) ||
+      student.enrollmentYear < 2000 ||
+      student.enrollmentYear > new Date().getFullYear()
+    )
+      newErrors.enrollmentYear = `Enrollment year must be between 2000 and ${new Date().getFullYear()}`;
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleChange = (e) => {
-    setStudent({ ...student, [e.target.name]: e.target.value });
+    const { name, value, type, checked } = e.target;
+    setStudent({
+      ...student,
+      [name]: type === "checkbox" ? checked : value,
+    });
+    setErrors({ ...errors, [name]: "" });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (
-      !student.rollNumber ||
-      !student.name ||
-      !student.age ||
-      !student.email ||
-      !student.course
-    ) {
-      alert("Please fill in all fields");
-      return;
-    }
-    if (!/^\d{12}$/.test(student.rollNumber)) {
-      alert("Roll number must be exactly 12 digits");
-      return;
-    }
-    if (!student.email.endsWith("@cbit.org.in")) {
-      alert("Email must be a @cbit.org.in address");
-      return;
-    }
+    if (!validate()) return;
+
     try {
-      await axios.put(`http://localhost:5000/students/${id}`, {
-        rollNumber: student.rollNumber,
-        name: student.name,
-        age: Number(student.age),
+      await axios.put(`https://management-q91z.onrender.com/students/${id}`, {
+        studentId: student.studentId,
+        firstName: student.firstName,
+        lastName: student.lastName,
         email: student.email,
-        course: student.course,
+        dob: student.dob,
+        department: student.department,
+        enrollmentYear: Number(student.enrollmentYear),
+        isActive: student.isActive,
       });
       alert("Student updated successfully");
       navigate("/students");
@@ -75,27 +110,39 @@ function EditStudent() {
   return (
     <div>
       <h2>Edit Student</h2>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} noValidate>
         <div>
-          <label>Roll Number: </label>
+          <label>Student ID: </label>
           <input
-            name="rollNumber"
-            value={student.rollNumber}
+            name="studentId"
+            value={student.studentId}
             onChange={handleChange}
           />
+          {errors.studentId && (
+            <div style={{ color: "red" }}>{errors.studentId}</div>
+          )}
         </div>
         <div>
-          <label>Name: </label>
-          <input name="name" value={student.name} onChange={handleChange} />
-        </div>
-        <div>
-          <label>Age: </label>
+          <label>First Name: </label>
           <input
-            name="age"
-            type="number"
-            value={student.age}
+            name="firstName"
+            value={student.firstName}
             onChange={handleChange}
           />
+          {errors.firstName && (
+            <div style={{ color: "red" }}>{errors.firstName}</div>
+          )}
+        </div>
+        <div>
+          <label>Last Name: </label>
+          <input
+            name="lastName"
+            value={student.lastName}
+            onChange={handleChange}
+          />
+          {errors.lastName && (
+            <div style={{ color: "red" }}>{errors.lastName}</div>
+          )}
         </div>
         <div>
           <label>Email: </label>
@@ -105,10 +152,58 @@ function EditStudent() {
             value={student.email}
             onChange={handleChange}
           />
+          {errors.email && <div style={{ color: "red" }}>{errors.email}</div>}
         </div>
         <div>
-          <label>Course: </label>
-          <input name="course" value={student.course} onChange={handleChange} />
+          <label>Date of Birth: </label>
+          <input
+            name="dob"
+            type="date"
+            value={student.dob}
+            onChange={handleChange}
+          />
+          {errors.dob && <div style={{ color: "red" }}>{errors.dob}</div>}
+        </div>
+        <div>
+          <label>Department: </label>
+          <input
+            name="department"
+            value={student.department}
+            onChange={handleChange}
+          />
+          {errors.department && (
+            <div style={{ color: "red" }}>{errors.department}</div>
+          )}
+        </div>
+        <div>
+          <label>Enrollment Year: </label>
+          <select
+            name="enrollmentYear"
+            value={student.enrollmentYear}
+            onChange={handleChange}
+          >
+            <option value="">Select year</option>
+            {Array.from(
+              { length: new Date().getFullYear() - 2000 + 1 },
+              (_, i) => 2000 + i
+            ).map((year) => (
+              <option key={year} value={year}>
+                {year}
+              </option>
+            ))}
+          </select>
+          {errors.enrollmentYear && (
+            <div style={{ color: "red" }}>{errors.enrollmentYear}</div>
+          )}
+        </div>
+        <div>
+          <label>Active: </label>
+          <input
+            name="isActive"
+            type="checkbox"
+            checked={student.isActive}
+            onChange={handleChange}
+          />
         </div>
         <button type="submit">Update Student</button>
       </form>
